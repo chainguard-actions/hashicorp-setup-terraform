@@ -1,0 +1,4 @@
+{
+  "upstream": "hashicorp/setup-terraform",
+  "version": "v4.0.0"
+}
