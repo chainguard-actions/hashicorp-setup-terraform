@@ -1,6 +1,12 @@
 # hashicorp/setup-terraform
 
-Hardened GitHub Action by [Chainguard](https://www.chainguard.dev).
+Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at [https://github.com/hashicorp/setup-terraform](https://github.com/hashicorp/setup-terraform).
+
+## Versions
+
+| Version | Tag | Upstream commit |
+|---------|-----|-----------------|
+| v4.0.0 | [`v4.0.0`](https://github.com/chainguard-actions/setup-terraform/tree/v4.0.0) | — |
 
 ## Privacy
 
