@@ -1,5 +1,7 @@
 # hashicorp/setup-terraform
 
+Sets up Terraform CLI in your GitHub Actions workflow.
+
 Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at [https://github.com/hashicorp/setup-terraform](https://github.com/hashicorp/setup-terraform).
 
 ## Versions
