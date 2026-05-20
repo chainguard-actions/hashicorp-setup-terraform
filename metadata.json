@@ -1,7 +1,0 @@
-{
-  "owner": "hashicorp",
-  "name": "setup-terraform",
-  "visibility": "internal",
-  "description": "Sets up Terraform CLI in your GitHub Actions workflow.",
-  "block_publish": false
-}
