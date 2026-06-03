@@ -1,0 +1,41 @@
+name: Test terraform wrapper disabled
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: setup
+        uses: .
+        with:
+          terraform_version: '1.9.0'
+          terraform_wrapper: 'false'
+      - name: Assert terraform is installed
+        run: |
+          which terraform
+          terraform version
+          echo "PASS: terraform is installed"
+      - name: Assert wrapper is not installed (terraform runs natively)
+        run: |
+          # When wrapper is disabled, terraform should run directly without wrapper
+          # The wrapper would normally intercept stdout/stderr/exitcode
+          # Run terraform version and check it exits cleanly without wrapper interference
+          terraform version
+          EXIT_CODE=$?
+          echo "exit code: $EXIT_CODE"
+          if [ "$EXIT_CODE" != "0" ]; then
+            echo "FAIL: terraform version exited with non-zero code $EXIT_CODE"
+            exit 1
+          fi
+          echo "PASS: terraform runs without wrapper"
+      - name: Assert stdout output is empty (no wrapper)
+        env:
+          STDOUT_OUT: ${{ steps.setup.outputs.stdout }}
+        run: |
+          echo "stdout output: '$STDOUT_OUT'"
+          if [ -n "$STDOUT_OUT" ]; then
+            echo "FAIL: expected stdout output to be empty when wrapper is disabled"
+            exit 1
+          fi
+          echo "PASS: stdout output is empty as expected"

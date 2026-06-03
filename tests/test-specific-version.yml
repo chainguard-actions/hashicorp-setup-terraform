@@ -1,0 +1,36 @@
+name: Test specific terraform version
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: setup
+        uses: .
+        with:
+          terraform_version: '1.9.0'
+      - name: Assert terraform is installed
+        run: |
+          which terraform
+          terraform version
+          echo "PASS: terraform is installed"
+      - name: Assert correct version is installed
+        run: |
+          INSTALLED=$(terraform version -json | grep -o '"terraform_version":"[^"]*"' | cut -d'"' -f4)
+          echo "installed version: $INSTALLED"
+          if [ "$INSTALLED" != "1.9.0" ]; then
+            echo "FAIL: expected version 1.9.0 but got '$INSTALLED'"
+            exit 1
+          fi
+          echo "PASS: correct version 1.9.0 is installed"
+      - name: Assert terraform_version output matches
+        env:
+          ACTUAL: ${{ steps.setup.outputs.terraform_version }}
+        run: |
+          echo "actual output: $ACTUAL"
+          if [ "$ACTUAL" != "1.9.0" ]; then
+            echo "FAIL: expected terraform_version output '1.9.0' but got '$ACTUAL'"
+            exit 1
+          fi
+          echo "PASS: terraform_version output is correct"

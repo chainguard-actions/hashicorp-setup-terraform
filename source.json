@@ -1,6 +1,11 @@
 {
   "owner": "hashicorp",
   "repo": "setup-terraform",
-  "version": "",
-  "url": "https://github.com/hashicorp/setup-terraform"
+  "version": "v4.0.1",
+  "commit_sha": "dfe3c3f87815947d99a8997f908cb6525fc44e9e",
+  "url": "https://github.com/hashicorp/setup-terraform",
+  "policy_sha": "ff50f15e4b79bfbf764dafdfd2579175a6ea9771",
+  "test_policy_sha": "843adf9e4b8f85d0c08b27b9d0b09dd094b54702",
+  "test_agent_version": "1",
+  "harden_agent_version": "1"
 }

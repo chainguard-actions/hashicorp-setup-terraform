@@ -1,0 +1,27 @@
+name: Test basic usage (latest terraform)
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: setup
+        uses: .
+        with:
+          terraform_version: 'latest'
+      - name: Assert terraform is installed
+        run: |
+          which terraform
+          terraform version
+          echo "PASS: terraform is installed"
+      - name: Assert terraform version output is set
+        env:
+          ACTUAL: ${{ steps.setup.outputs.terraform_version }}
+        run: |
+          echo "actual: $ACTUAL"
+          if [ -z "$ACTUAL" ]; then
+            echo "FAIL: expected terraform_version output to be non-empty"
+            exit 1
+          fi
+          echo "PASS: terraform_version output is '$ACTUAL'"
