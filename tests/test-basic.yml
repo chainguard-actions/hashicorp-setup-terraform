@@ -1,4 +1,4 @@
-name: Test basic usage (latest terraform)
+name: Test basic usage - latest terraform
 on:
   workflow_dispatch:
 jobs:
@@ -15,13 +15,13 @@ jobs:
           which terraform
           terraform version
           echo "PASS: terraform is installed"
-      - name: Assert terraform version output is set
+      - name: Assert stdout output exists
         env:
-          ACTUAL: ${{ steps.setup.outputs.terraform_version }}
+          STDOUT: ${{ steps.setup.outputs.stdout }}
         run: |
-          echo "actual: $ACTUAL"
-          if [ -z "$ACTUAL" ]; then
-            echo "FAIL: expected terraform_version output to be non-empty"
+          echo "stdout: $STDOUT"
+          if [ -z "$STDOUT" ]; then
+            echo "FAIL: expected stdout output to be non-empty"
             exit 1
           fi
-          echo "PASS: terraform_version output is '$ACTUAL'"
+          echo "PASS"

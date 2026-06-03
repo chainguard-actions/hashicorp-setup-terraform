@@ -15,27 +15,26 @@ jobs:
         run: |
           which terraform
           terraform version
-          echo "PASS: terraform is installed"
-      - name: Assert wrapper is not installed (terraform runs natively)
+          echo "PASS: terraform is installed without wrapper"
+      - name: Assert terraform runs directly without wrapper
         run: |
-          # When wrapper is disabled, terraform should run directly without wrapper
-          # The wrapper would normally intercept stdout/stderr/exitcode
-          # Run terraform version and check it exits cleanly without wrapper interference
+          # When wrapper is disabled, terraform should run natively
+          # and exit code should be directly from terraform
           terraform version
           EXIT_CODE=$?
           echo "exit code: $EXIT_CODE"
           if [ "$EXIT_CODE" != "0" ]; then
-            echo "FAIL: terraform version exited with non-zero code $EXIT_CODE"
+            echo "FAIL: expected terraform version to exit with 0"
             exit 1
           fi
           echo "PASS: terraform runs without wrapper"
-      - name: Assert stdout output is empty (no wrapper)
+      - name: Assert stdout output is empty when wrapper disabled
         env:
-          STDOUT_OUT: ${{ steps.setup.outputs.stdout }}
+          STDOUT: ${{ steps.setup.outputs.stdout }}
         run: |
-          echo "stdout output: '$STDOUT_OUT'"
-          if [ -n "$STDOUT_OUT" ]; then
+          echo "stdout output: '$STDOUT'"
+          if [ -n "$STDOUT" ]; then
             echo "FAIL: expected stdout output to be empty when wrapper is disabled"
             exit 1
           fi
-          echo "PASS: stdout output is empty as expected"
+          echo "PASS: stdout is empty as expected when wrapper is disabled"

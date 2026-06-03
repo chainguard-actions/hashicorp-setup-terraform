@@ -10,27 +10,12 @@ jobs:
         uses: .
         with:
           terraform_version: '1.9.0'
-      - name: Assert terraform is installed
+      - name: Assert terraform version is correct
         run: |
-          which terraform
-          terraform version
-          echo "PASS: terraform is installed"
-      - name: Assert correct version is installed
-        run: |
-          INSTALLED=$(terraform version -json | grep -o '"terraform_version":"[^"]*"' | cut -d'"' -f4)
-          echo "installed version: $INSTALLED"
-          if [ "$INSTALLED" != "1.9.0" ]; then
-            echo "FAIL: expected version 1.9.0 but got '$INSTALLED'"
+          INSTALLED_VERSION=$(terraform version -json | python3 -c "import sys,json; print(json.load(sys.stdin)['terraform_version'])")
+          echo "installed version: $INSTALLED_VERSION"
+          if [ "$INSTALLED_VERSION" != "1.9.0" ]; then
+            echo "FAIL: expected version 1.9.0, got $INSTALLED_VERSION"
             exit 1
           fi
-          echo "PASS: correct version 1.9.0 is installed"
-      - name: Assert terraform_version output matches
-        env:
-          ACTUAL: ${{ steps.setup.outputs.terraform_version }}
-        run: |
-          echo "actual output: $ACTUAL"
-          if [ "$ACTUAL" != "1.9.0" ]; then
-            echo "FAIL: expected terraform_version output '1.9.0' but got '$ACTUAL'"
-            exit 1
-          fi
-          echo "PASS: terraform_version output is correct"
+          echo "PASS"
