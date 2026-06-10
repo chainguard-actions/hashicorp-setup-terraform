@@ -1,0 +1,30 @@
+name: Test with terraform wrapper disabled
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: setup
+        uses: .
+        with:
+          terraform_version: '1.9.0'
+          terraform_wrapper: 'false'
+      - name: Assert terraform is installed without wrapper
+        run: |
+          which terraform
+          terraform version
+          echo "PASS: terraform is installed"
+      - name: Assert terraform binary is the real binary (not a wrapper script)
+        run: |
+          terraform_path=$(which terraform)
+          echo "terraform path: $terraform_path"
+          # When wrapper is disabled, the terraform binary should be a real binary (ELF), not a shell script
+          file_type=$(file "$terraform_path")
+          echo "file type: $file_type"
+          if echo "$file_type" | grep -qi "shell script"; then
+            echo "FAIL: terraform appears to be a wrapper shell script, expected real binary"
+            exit 1
+          fi
+          echo "PASS: terraform is not a wrapper shell script"

@@ -1,0 +1,21 @@
+name: Test specific terraform version installation
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: setup
+        uses: .
+        with:
+          terraform_version: '1.9.0'
+      - name: Assert terraform version is correct
+        run: |
+          actual_version=$(terraform version -json | python3 -c "import sys,json; print(json.load(sys.stdin)['terraform_version'])" 2>/dev/null || terraform version | head -1 | grep -oP '\d+\.\d+\.\d+')
+          echo "actual version: $actual_version"
+          if [ "$actual_version" != "1.9.0" ]; then
+            echo "FAIL: expected version 1.9.0, got $actual_version"
+            exit 1
+          fi
+          echo "PASS: terraform version is 1.9.0"

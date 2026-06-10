@@ -1,0 +1,29 @@
+name: Test basic usage (latest terraform)
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: setup
+        uses: .
+        with:
+          terraform_version: 'latest'
+      - name: Assert terraform is installed
+        run: |
+          which terraform
+          terraform version
+          echo "PASS: terraform is installed"
+      - name: Assert terraform version output
+        env:
+          STDOUT: ${{ steps.setup.outputs.stdout }}
+        run: |
+          echo "stdout: $STDOUT"
+          terraform_path=$(which terraform)
+          echo "terraform path: $terraform_path"
+          if [ -z "$terraform_path" ]; then
+            echo "FAIL: terraform not found in PATH"
+            exit 1
+          fi
+          echo "PASS"
