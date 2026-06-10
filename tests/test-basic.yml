@@ -1,4 +1,4 @@
-name: Test basic usage - latest terraform
+name: Test basic usage (latest version, wrapper enabled)
 on:
   workflow_dispatch:
 jobs:
@@ -10,18 +10,22 @@ jobs:
         uses: .
         with:
           terraform_version: 'latest'
+          terraform_wrapper: 'true'
       - name: Assert terraform is installed
         run: |
           which terraform
           terraform version
           echo "PASS: terraform is installed"
-      - name: Assert stdout output exists
+      - name: Assert wrapper outputs are available (wrapper=true)
+        id: tf_version
+        run: terraform version
+      - name: Assert stdout output exists from wrapper
         env:
-          STDOUT: ${{ steps.setup.outputs.stdout }}
+          STDOUT: ${{ steps.tf_version.outputs.stdout }}
         run: |
           echo "stdout: $STDOUT"
           if [ -z "$STDOUT" ]; then
-            echo "FAIL: expected stdout output to be non-empty"
+            echo "FAIL: expected stdout output from terraform wrapper"
             exit 1
           fi
-          echo "PASS"
+          echo "PASS: stdout output is present"

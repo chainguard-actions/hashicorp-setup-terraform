@@ -1,4 +1,4 @@
-name: Test specific terraform version
+name: Test specific terraform version installation
 on:
   workflow_dispatch:
 jobs:
@@ -10,12 +10,13 @@ jobs:
         uses: .
         with:
           terraform_version: '1.9.0'
-      - name: Assert terraform version is correct
+          terraform_wrapper: 'false'
+      - name: Assert terraform version matches expected
         run: |
-          INSTALLED_VERSION=$(terraform version -json | python3 -c "import sys,json; print(json.load(sys.stdin)['terraform_version'])")
-          echo "installed version: $INSTALLED_VERSION"
-          if [ "$INSTALLED_VERSION" != "1.9.0" ]; then
-            echo "FAIL: expected version 1.9.0, got $INSTALLED_VERSION"
+          INSTALLED=$(terraform version -json | grep -o '"terraform_version":"[^"]*"' | cut -d'"' -f4)
+          echo "installed version: $INSTALLED"
+          if [ "$INSTALLED" != "1.9.0" ]; then
+            echo "FAIL: expected version 1.9.0, got $INSTALLED"
             exit 1
           fi
-          echo "PASS"
+          echo "PASS: correct version installed"
