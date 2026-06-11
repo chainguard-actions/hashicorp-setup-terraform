@@ -8,7 +8,7 @@ Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at
 
 | Version | Tag | Upstream commit |
 |---------|-----|-----------------|
-| v4.0.0 | [`v4.0.0`](https://github.com/chainguard-actions/hashicorp-setup-terraform/tree/v4.0.0) | — |
+| v4.0.0 | [`v4.0.0`](https://github.com/chainguard-actions/hashicorp-setup-terraform/tree/v4.0.0) | [`5e8dbf3`](https://github.com/hashicorp/setup-terraform/commit/5e8dbf3c6d9deaf4193ca7a8fb23f2ac83bb6c85) |
 | v4.0.1 | [`v4.0.1`](https://github.com/chainguard-actions/hashicorp-setup-terraform/tree/v4.0.1) | [`dfe3c3f`](https://github.com/hashicorp/setup-terraform/commit/dfe3c3f87815947d99a8997f908cb6525fc44e9e) |
 
 ## Privacy
