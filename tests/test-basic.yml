@@ -1,4 +1,4 @@
-name: Test basic usage (latest terraform)
+name: Test basic usage (latest version, wrapper enabled)
 on:
   workflow_dispatch:
 jobs:
@@ -10,20 +10,32 @@ jobs:
         uses: .
         with:
           terraform_version: 'latest'
+          terraform_wrapper: 'true'
       - name: Assert terraform is installed
         run: |
           which terraform
           terraform version
           echo "PASS: terraform is installed"
-      - name: Assert terraform version output
+      - name: Assert wrapper outputs are available (stdout)
+        id: tf_version
+        run: terraform version
+      - name: Assert wrapper exposes stdout output
         env:
-          STDOUT: ${{ steps.setup.outputs.stdout }}
+          STDOUT: ${{ steps.tf_version.outputs.stdout }}
         run: |
           echo "stdout: $STDOUT"
-          terraform_path=$(which terraform)
-          echo "terraform path: $terraform_path"
-          if [ -z "$terraform_path" ]; then
-            echo "FAIL: terraform not found in PATH"
+          if [ -z "$STDOUT" ]; then
+            echo "FAIL: expected stdout output from wrapper but got empty string"
             exit 1
           fi
-          echo "PASS"
+          echo "PASS: wrapper stdout output is present"
+      - name: Assert wrapper exposes exitcode output
+        env:
+          EXITCODE: ${{ steps.tf_version.outputs.exitcode }}
+        run: |
+          echo "exitcode: $EXITCODE"
+          if [ "$EXITCODE" != "0" ]; then
+            echo "FAIL: expected exitcode 0 but got '$EXITCODE'"
+            exit 1
+          fi
+          echo "PASS: wrapper exitcode is 0"

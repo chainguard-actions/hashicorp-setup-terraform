@@ -10,12 +10,13 @@ jobs:
         uses: .
         with:
           terraform_version: '1.9.0'
-      - name: Assert terraform version is correct
+          terraform_wrapper: 'false'
+      - name: Assert terraform version matches expected
         run: |
-          actual_version=$(terraform version -json | python3 -c "import sys,json; print(json.load(sys.stdin)['terraform_version'])" 2>/dev/null || terraform version | head -1 | grep -oP '\d+\.\d+\.\d+')
-          echo "actual version: $actual_version"
-          if [ "$actual_version" != "1.9.0" ]; then
-            echo "FAIL: expected version 1.9.0, got $actual_version"
+          INSTALLED=$(terraform version -json | python3 -c "import sys,json; print(json.load(sys.stdin)['terraform_version'])")
+          echo "installed version: $INSTALLED"
+          if [ "$INSTALLED" != "1.9.0" ]; then
+            echo "FAIL: expected version 1.9.0 but got '$INSTALLED'"
             exit 1
           fi
           echo "PASS: terraform version is 1.9.0"
