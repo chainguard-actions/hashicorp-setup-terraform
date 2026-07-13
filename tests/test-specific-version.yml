@@ -1,0 +1,32 @@
+name: Test specific Terraform version
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: setup
+        uses: .
+        with:
+          terraform_version: '1.5.7'
+          terraform_wrapper: 'false'
+      - name: Assert terraform is installed
+        run: |
+          echo "Checking terraform binary..."
+          TF_PATH=$(which terraform 2>/dev/null || true)
+          echo "terraform path: $TF_PATH"
+          if [ -z "$TF_PATH" ]; then
+            echo "FAIL: terraform binary not found in PATH"
+            exit 1
+          fi
+          echo "PASS: terraform binary found at $TF_PATH"
+      - name: Assert correct version is installed
+        run: |
+          VERSION_OUTPUT=$(terraform version 2>&1 || true)
+          echo "terraform version output: $VERSION_OUTPUT"
+          if ! echo "$VERSION_OUTPUT" | grep -q "1.5.7"; then
+            echo "FAIL: expected version 1.5.7 in output but got: $VERSION_OUTPUT"
+            exit 1
+          fi
+          echo "PASS: terraform version matches expected 1.5.7"

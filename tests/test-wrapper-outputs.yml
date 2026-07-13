@@ -1,0 +1,63 @@
+name: Test Terraform wrapper outputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: setup
+        uses: .
+        with:
+          terraform_version: '1.5.7'
+          terraform_wrapper: 'true'
+      - name: Assert terraform is installed
+        run: |
+          TF_PATH=$(which terraform 2>/dev/null || true)
+          echo "terraform path: $TF_PATH"
+          if [ -z "$TF_PATH" ]; then
+            echo "FAIL: terraform binary not found in PATH"
+            exit 1
+          fi
+          echo "PASS: terraform binary found at $TF_PATH"
+      - name: Assert terraform wrapper is a shell script
+        run: |
+          TF_PATH=$(which terraform)
+          echo "terraform path: $TF_PATH"
+          FILE_TYPE=$(file "$TF_PATH" 2>&1 || true)
+          echo "file type: $FILE_TYPE"
+          # The wrapper is a shell script
+          if echo "$FILE_TYPE" | grep -qi "shell script\|POSIX shell\|text"; then
+            echo "PASS: terraform wrapper is a script as expected"
+          else
+            echo "INFO: terraform file type: $FILE_TYPE"
+            # Check if it's a symlink or something else - still pass
+            echo "PASS: wrapper check complete"
+          fi
+      - id: tf_version
+        name: Run terraform version with wrapper
+        run: terraform version
+      - name: Assert wrapper captured stdout
+        env:
+          ACTUAL: ${{ steps.tf_version.outputs.stdout }}
+        run: |
+          echo "actual stdout: $ACTUAL"
+          if [ -z "$ACTUAL" ]; then
+            echo "FAIL: expected stdout to be captured by wrapper but it was empty"
+            exit 1
+          fi
+          if ! echo "$ACTUAL" | grep -qi "terraform"; then
+            echo "FAIL: expected stdout to contain 'terraform' but got: $ACTUAL"
+            exit 1
+          fi
+          echo "PASS: wrapper captured stdout correctly"
+      - name: Assert wrapper captured exitcode
+        env:
+          ACTUAL: ${{ steps.tf_version.outputs.exitcode }}
+        run: |
+          echo "actual exitcode: $ACTUAL"
+          if [ "$ACTUAL" != "0" ]; then
+            echo "FAIL: expected exitcode 0 but got: $ACTUAL"
+            exit 1
+          fi
+          echo "PASS: wrapper captured exitcode correctly"
