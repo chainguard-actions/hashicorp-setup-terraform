@@ -13,8 +13,7 @@ on:
     # to see the reasoning behind using `pull_request_target` instead of `pull_request`
     types: [opened, reopened, ready_for_review]
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
   add-content-to-project:

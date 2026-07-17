@@ -6,8 +6,7 @@ on:
     - main
   pull_request:
 
-permissions:
-  contents: read
+permissions: {}
 
 defaults:
   run:
@@ -126,18 +125,18 @@ jobs:
     - name: Validate Terraform Credentials (Windows)
       if: runner.os == 'Windows'
       env:
-        TF_TOKEN: ${{ env.TF_CLOUD_API_TOKEN }}
+        EXPECTED_TOKEN: ${{ env.TF_CLOUD_API_TOKEN }}
       run: |
         cat ${APPDATA}/terraform.rc | grep 'credentials "app.terraform.io"'
-        cat ${APPDATA}/terraform.rc | grep "token = \"$TF_TOKEN\""
+        cat ${APPDATA}/terraform.rc | grep "token = \"$EXPECTED_TOKEN\""
 
     - name: Validate Teraform Credentials (Linux & macOS)
       if: runner.os != 'Windows'
       env:
-        TF_TOKEN: ${{ env.TF_CLOUD_API_TOKEN }}
+        EXPECTED_TOKEN: ${{ env.TF_CLOUD_API_TOKEN }}
       run: |
         cat ${HOME}/.terraformrc | grep 'credentials "app.terraform.io"'
-        cat ${HOME}/.terraformrc | grep "token = \"$TF_TOKEN\""
+        cat ${HOME}/.terraformrc | grep "token = \"$EXPECTED_TOKEN\""
 
   terraform-credentials-enterprise:
     name: 'Terraform Enterprise Credentials'
@@ -160,18 +159,18 @@ jobs:
     - name: Validate Terraform Credentials (Windows)
       if: runner.os == 'Windows'
       env:
-        TF_TOKEN: ${{ env.TF_CLOUD_API_TOKEN }}
+        EXPECTED_TOKEN: ${{ env.TF_CLOUD_API_TOKEN }}
       run: |
         cat ${APPDATA}/terraform.rc | grep 'credentials "terraform.example.com"'
-        cat ${APPDATA}/terraform.rc | grep "token = \"$TF_TOKEN\""
+        cat ${APPDATA}/terraform.rc | grep "token = \"$EXPECTED_TOKEN\""
 
     - name: Validate Teraform Credentials (Linux & macOS)
       if: runner.os != 'Windows'
       env:
-        TF_TOKEN: ${{ env.TF_CLOUD_API_TOKEN }}
+        EXPECTED_TOKEN: ${{ env.TF_CLOUD_API_TOKEN }}
       run: |
         cat ${HOME}/.terraformrc | grep 'credentials "terraform.example.com"'
-        cat ${HOME}/.terraformrc | grep "token = \"$TF_TOKEN\""
+        cat ${HOME}/.terraformrc | grep "token = \"$EXPECTED_TOKEN\""
 
   terraform-credentials-none:
     name: 'Terraform No Credentials'

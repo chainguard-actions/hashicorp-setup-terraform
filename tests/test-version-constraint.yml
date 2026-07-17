@@ -1,4 +1,4 @@
-name: Test Terraform version constraint
+name: Test terraform version constraint
 on:
   workflow_dispatch:
 jobs:
@@ -14,32 +14,28 @@ jobs:
       - name: Assert terraform is installed
         run: |
           echo "Checking terraform binary..."
-          TF_PATH=$(which terraform 2>/dev/null || true)
-          echo "terraform path: $TF_PATH"
-          if [ -z "$TF_PATH" ]; then
-            echo "FAIL: terraform binary not found in PATH"
-            exit 1
-          fi
-          echo "PASS: terraform binary found at $TF_PATH"
-      - name: Assert installed version satisfies constraint less than 1.6.0
+          which terraform
+          echo "PASS: terraform binary found"
+      - name: Assert version satisfies constraint (less than 1.6.0)
         run: |
-          VERSION_OUTPUT=$(terraform version 2>&1 || true)
-          echo "terraform version output: $VERSION_OUTPUT"
-          # Extract version number from output like "Terraform v1.5.7"
-          VERSION=$(echo "$VERSION_OUTPUT" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1 || true)
+          INSTALLED=$(terraform version | head -1)
+          echo "Installed: $INSTALLED"
+          # Extract version numbers
+          VERSION=$(echo "$INSTALLED" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
           echo "Parsed version: $VERSION"
           if [ -z "$VERSION" ]; then
-            echo "FAIL: could not parse version from output: $VERSION_OUTPUT"
+            echo "FAIL: could not parse version from: $INSTALLED"
             exit 1
           fi
           MAJOR=$(echo "$VERSION" | cut -d. -f1)
           MINOR=$(echo "$VERSION" | cut -d. -f2)
           echo "Major: $MAJOR, Minor: $MINOR"
+          # Check version < 1.6.0
           if [ "$MAJOR" -lt 1 ]; then
-            echo "PASS: version $VERSION satisfies constraint <1.6.0"
+            echo "PASS: version $VERSION satisfies <1.6.0"
           elif [ "$MAJOR" -eq 1 ] && [ "$MINOR" -lt 6 ]; then
-            echo "PASS: version $VERSION satisfies constraint <1.6.0"
+            echo "PASS: version $VERSION satisfies <1.6.0"
           else
-            echo "FAIL: version $VERSION does NOT satisfy constraint <1.6.0"
+            echo "FAIL: version $VERSION does NOT satisfy <1.6.0"
             exit 1
           fi

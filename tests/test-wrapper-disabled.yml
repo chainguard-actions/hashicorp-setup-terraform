@@ -1,4 +1,4 @@
-name: Test Terraform wrapper disabled
+name: Test terraform wrapper disabled
 on:
   workflow_dispatch:
 jobs:
@@ -9,39 +9,34 @@ jobs:
       - id: setup
         uses: .
         with:
-          terraform_version: '1.5.7'
+          terraform_version: '1.6.0'
           terraform_wrapper: 'false'
       - name: Assert terraform is installed
         run: |
           echo "Checking terraform binary..."
-          TF_PATH=$(which terraform 2>/dev/null || true)
-          echo "terraform path: $TF_PATH"
-          if [ -z "$TF_PATH" ]; then
-            echo "FAIL: terraform binary not found in PATH"
-            exit 1
-          fi
-          echo "PASS: terraform binary found at $TF_PATH"
-      - name: Assert terraform runs directly without wrapper
+          which terraform
+          echo "PASS: terraform binary found"
+      - name: Assert terraform runs successfully without wrapper
         run: |
           terraform version
-          EXIT_CODE=$?
-          echo "terraform version exit code: $EXIT_CODE"
-          if [ "$EXIT_CODE" != "0" ]; then
-            echo "FAIL: terraform version returned non-zero exit code: $EXIT_CODE"
+          echo "Exit code: $?"
+          echo "PASS: terraform runs successfully without wrapper"
+      - name: Assert wrapper is not active (no stdout output captured)
+        id: tf_run
+        run: terraform version
+      - name: Assert no wrapper stdout output
+        env:
+          STDOUT: ${{ steps.tf_run.outputs.stdout }}
+          EXITCODE: ${{ steps.tf_run.outputs.exitcode }}
+        run: |
+          echo "stdout output: '$STDOUT'"
+          echo "exitcode output: '$EXITCODE'"
+          if [ -n "$STDOUT" ]; then
+            echo "FAIL: expected no stdout output (wrapper should be disabled)"
             exit 1
           fi
-          echo "PASS: terraform runs successfully without wrapper"
-      - name: Assert terraform binary is not the wrapper script
-        run: |
-          TF_PATH=$(which terraform)
-          echo "terraform path: $TF_PATH"
-          # When wrapper is disabled, terraform should be a real binary, not a shell script wrapper
-          FILE_TYPE=$(file "$TF_PATH" 2>&1 || true)
-          echo "file type: $FILE_TYPE"
-          # The real terraform binary is an ELF executable, not a shell script
-          if echo "$FILE_TYPE" | grep -qi "shell script\|POSIX shell"; then
-            echo "WARN: terraform appears to be a shell script (wrapper may still be active)"
-          else
-            echo "PASS: terraform is not a shell script wrapper"
+          if [ -n "$EXITCODE" ]; then
+            echo "FAIL: expected no exitcode output (wrapper should be disabled)"
+            exit 1
           fi
-          echo "PASS: wrapper disabled test complete"
+          echo "PASS: wrapper is disabled, no captured outputs"

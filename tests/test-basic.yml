@@ -1,4 +1,4 @@
-name: Test basic usage - latest Terraform
+name: Test basic usage (latest terraform)
 on:
   workflow_dispatch:
 jobs:
@@ -9,28 +9,33 @@ jobs:
       - id: setup
         uses: .
         with:
-          terraform_version: 'latest'
+          terraform_version: latest
           terraform_wrapper: 'true'
       - name: Assert terraform is installed
         run: |
           echo "Checking terraform binary..."
-          TF_PATH=$(which terraform 2>/dev/null || true)
-          echo "terraform path: $TF_PATH"
-          if [ -z "$TF_PATH" ]; then
-            echo "FAIL: terraform binary not found in PATH"
-            exit 1
-          fi
-          echo "PASS: terraform binary found at $TF_PATH"
-      - name: Assert terraform version command works
+          which terraform
+          terraform version
+          echo "PASS: terraform is installed"
+      - name: Assert terraform version is non-empty
         run: |
-          OUTPUT=$(terraform version 2>&1 || true)
-          echo "terraform version output: $OUTPUT"
-          if [ -z "$OUTPUT" ]; then
-            echo "FAIL: terraform version produced no output"
+          TF_VERSION=$(terraform version | head -1)
+          echo "Installed terraform version: $TF_VERSION"
+          if [ -z "$TF_VERSION" ]; then
+            echo "FAIL: could not determine terraform version"
             exit 1
           fi
-          if ! echo "$OUTPUT" | grep -qi "terraform"; then
-            echo "FAIL: terraform version output does not mention terraform"
+          echo "PASS: terraform version is $TF_VERSION"
+      - name: Assert wrapper outputs are captured
+        id: tf_version_check
+        run: terraform version
+      - name: Assert stdout output from wrapper
+        env:
+          STDOUT: ${{ steps.tf_version_check.outputs.stdout }}
+        run: |
+          echo "stdout: $STDOUT"
+          if [ -z "$STDOUT" ]; then
+            echo "FAIL: expected stdout output from terraform wrapper"
             exit 1
           fi
-          echo "PASS: terraform version command works"
+          echo "PASS: wrapper captured stdout"
