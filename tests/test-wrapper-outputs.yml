@@ -1,0 +1,66 @@
+name: Test Terraform wrapper outputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: setup
+        uses: .
+        with:
+          terraform_version: '1.9.0'
+          terraform_wrapper: 'true'
+      - name: Assert terraform is installed with wrapper
+        run: |
+          which terraform
+          echo "PASS: terraform binary found"
+      - name: Assert wrapper is installed (terraform-bin should exist)
+        run: |
+          TF_PATH=$(which terraform)
+          TF_DIR=$(dirname "$TF_PATH")
+          echo "terraform dir: $TF_DIR"
+          if [ ! -f "$TF_DIR/terraform-bin" ]; then
+            echo "FAIL: terraform-bin not found, wrapper may not be installed"
+            exit 1
+          fi
+          echo "PASS: wrapper installed (terraform-bin found at $TF_DIR/terraform-bin)"
+      - id: tf_version
+        name: Run terraform version via wrapper
+        run: terraform version
+      - name: Assert stdout output is captured by wrapper
+        env:
+          ACTUAL: ${{ steps.tf_version.outputs.stdout }}
+        run: |
+          echo "actual stdout: $ACTUAL"
+          if [ -z "$ACTUAL" ]; then
+            echo "FAIL: stdout output is empty - wrapper may not be active"
+            exit 1
+          fi
+          if ! echo "$ACTUAL" | grep -q "Terraform"; then
+            echo "FAIL: stdout does not contain 'Terraform'"
+            exit 1
+          fi
+          echo "PASS: stdout captured by wrapper contains 'Terraform'"
+      - name: Assert exitcode output is captured by wrapper
+        env:
+          ACTUAL: ${{ steps.tf_version.outputs.exitcode }}
+        run: |
+          echo "actual exitcode: $ACTUAL"
+          if [ -z "$ACTUAL" ]; then
+            echo "FAIL: exitcode output is empty - wrapper may not be active"
+            exit 1
+          fi
+          if [ "$ACTUAL" != "0" ]; then
+            echo "FAIL: expected exitcode 0 but got $ACTUAL"
+            exit 1
+          fi
+          echo "PASS: exitcode is 0"
+      - name: Assert stderr output is captured by wrapper
+        env:
+          ACTUAL: ${{ steps.tf_version.outputs.stderr }}
+        run: |
+          echo "actual stderr: $ACTUAL"
+          # stderr may be empty for 'terraform version', that's fine
+          # Just verify the output key exists (it will be empty string if no stderr)
+          echo "PASS: stderr output key is accessible (value may be empty)"

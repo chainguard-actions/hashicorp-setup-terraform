@@ -1,4 +1,4 @@
-name: Test basic usage (latest version, wrapper enabled)
+name: Test basic usage - latest Terraform
 on:
   workflow_dispatch:
 jobs:
@@ -10,22 +10,17 @@ jobs:
         uses: .
         with:
           terraform_version: 'latest'
-          terraform_wrapper: 'true'
       - name: Assert terraform is installed
         run: |
           which terraform
           terraform version
-          echo "PASS: terraform is installed"
-      - name: Assert wrapper outputs are available (wrapper=true)
-        id: tf_version
-        run: terraform version
-      - name: Assert stdout output exists from wrapper
-        env:
-          STDOUT: ${{ steps.tf_version.outputs.stdout }}
+          echo "PASS: terraform binary found"
+      - name: Assert terraform version is non-empty
         run: |
-          echo "stdout: $STDOUT"
-          if [ -z "$STDOUT" ]; then
-            echo "FAIL: expected stdout output from terraform wrapper"
+          VERSION=$(terraform version -json | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('terraform_version',''))" 2>/dev/null || terraform version | head -1 | grep -oP '\d+\.\d+\.\d+' || true)
+          echo "actual version: $VERSION"
+          if [ -z "$VERSION" ]; then
+            echo "FAIL: could not determine installed terraform version"
             exit 1
           fi
-          echo "PASS: stdout output is present"
+          echo "PASS: terraform version is $VERSION"

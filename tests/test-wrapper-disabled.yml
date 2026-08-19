@@ -1,0 +1,36 @@
+name: Test terraform wrapper disabled
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Install Node.js 24
+        run: |
+          curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash - 2>/dev/null || true
+          sudo apt-get install -y nodejs 2>/dev/null || true
+          node --version
+      - id: setup
+        uses: .
+        with:
+          terraform_version: '1.9.0'
+          terraform_wrapper: 'false'
+      - name: Run terraform version without wrapper
+        id: tf_version
+        run: terraform version
+      - name: Assert stdout output is NOT captured (wrapper disabled)
+        env:
+          ACTUAL: ${{ steps.tf_version.outputs.stdout }}
+        run: |
+          echo "actual stdout output: '$ACTUAL'"
+          if [ -n "$ACTUAL" ]; then
+            echo "FAIL: expected stdout output to be empty when wrapper is disabled, got '$ACTUAL'"
+            exit 1
+          fi
+          echo "PASS: stdout output is empty as expected (wrapper disabled)"
+      - name: Assert terraform still works without wrapper
+        run: |
+          echo "Verifying terraform binary works directly..."
+          terraform version
+          echo "PASS: terraform works without wrapper"

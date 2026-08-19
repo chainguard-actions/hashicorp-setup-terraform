@@ -1,4 +1,4 @@
-name: Test specific Terraform version
+name: Test Terraform version constraint
 on:
   workflow_dispatch:
 jobs:
@@ -9,22 +9,31 @@ jobs:
       - id: setup
         uses: .
         with:
-          terraform_version: '1.9.0'
+          terraform_version: '<1.10.0'
       - name: Assert terraform is installed
         run: |
           which terraform
           terraform version
           echo "PASS: terraform binary found"
-      - name: Assert correct version is installed
+      - name: Assert installed version satisfies constraint
         run: |
+          # Extract version and verify it is less than 1.10.0
           VERSION=$(terraform version -json | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('terraform_version',''))" 2>/dev/null || terraform version | head -1 | grep -oP '\d+\.\d+\.\d+' || true)
           echo "actual version: $VERSION"
           if [ -z "$VERSION" ]; then
             echo "FAIL: could not determine installed version"
             exit 1
           fi
-          if [ "$VERSION" != "1.9.0" ]; then
-            echo "FAIL: expected version 1.9.0 but got $VERSION"
+          # Compare major.minor - version should be < 1.10.0
+          MAJOR=$(echo "$VERSION" | cut -d'.' -f1)
+          MINOR=$(echo "$VERSION" | cut -d'.' -f2)
+          echo "major: $MAJOR, minor: $MINOR"
+          if [ "$MAJOR" -gt 1 ]; then
+            echo "FAIL: major version $MAJOR exceeds constraint"
             exit 1
           fi
-          echo "PASS: correct version 1.9.0 installed"
+          if [ "$MAJOR" -eq 1 ] && [ "$MINOR" -ge 10 ]; then
+            echo "FAIL: version $VERSION does not satisfy constraint <1.10.0"
+            exit 1
+          fi
+          echo "PASS: version $VERSION satisfies constraint <1.10.0"
