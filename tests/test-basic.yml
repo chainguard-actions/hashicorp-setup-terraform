@@ -1,4 +1,4 @@
-name: Test basic usage (latest version, wrapper enabled)
+name: Test basic usage (latest version with wrapper)
 on:
   workflow_dispatch:
 jobs:
@@ -6,36 +6,39 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
       - id: setup
         uses: .
         with:
-          terraform_version: 'latest'
+          terraform_version: latest
           terraform_wrapper: 'true'
+
       - name: Assert terraform is installed
         run: |
+          echo "Checking terraform binary..."
           which terraform
           terraform version
           echo "PASS: terraform is installed"
-      - name: Assert wrapper outputs are available (stdout)
-        id: tf_version
+
+      - id: tf_version
+        name: Run terraform version via wrapper
         run: terraform version
-      - name: Assert wrapper exposes stdout output
+
+      - name: Assert wrapper outputs are set
         env:
           STDOUT: ${{ steps.tf_version.outputs.stdout }}
-        run: |
-          echo "stdout: $STDOUT"
-          if [ -z "$STDOUT" ]; then
-            echo "FAIL: expected stdout output from wrapper but got empty string"
-            exit 1
-          fi
-          echo "PASS: wrapper stdout output is present"
-      - name: Assert wrapper exposes exitcode output
-        env:
+          STDERR: ${{ steps.tf_version.outputs.stderr }}
           EXITCODE: ${{ steps.tf_version.outputs.exitcode }}
         run: |
+          echo "stdout: $STDOUT"
+          echo "stderr: $STDERR"
           echo "exitcode: $EXITCODE"
+          if [ -z "$STDOUT" ]; then
+            echo "FAIL: expected stdout output from wrapper but got empty"
+            exit 1
+          fi
           if [ "$EXITCODE" != "0" ]; then
             echo "FAIL: expected exitcode 0 but got '$EXITCODE'"
             exit 1
           fi
-          echo "PASS: wrapper exitcode is 0"
+          echo "PASS: wrapper outputs are set correctly"

@@ -1,0 +1,38 @@
+name: Test version constraint syntax
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - id: setup
+        uses: .
+        with:
+          terraform_version: '<1.10.0'
+          terraform_wrapper: 'false'
+
+      - name: Assert terraform is installed and version satisfies constraint
+        run: |
+          echo "Checking terraform version satisfies constraint <1.10.0..."
+          terraform version
+          # Extract major.minor.patch version
+          VERSION=$(terraform version | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+          echo "Installed version: $VERSION"
+          if [ -z "$VERSION" ]; then
+            echo "FAIL: could not determine terraform version"
+            exit 1
+          fi
+          MAJOR=$(echo "$VERSION" | cut -d. -f1)
+          MINOR=$(echo "$VERSION" | cut -d. -f2)
+          # Version must be < 1.10.0, so major=1 and minor<10, or major<1
+          if [ "$MAJOR" -gt 1 ]; then
+            echo "FAIL: version $VERSION does not satisfy <1.10.0 (major > 1)"
+            exit 1
+          fi
+          if [ "$MAJOR" -eq 1 ] && [ "$MINOR" -ge 10 ]; then
+            echo "FAIL: version $VERSION does not satisfy <1.10.0 (minor >= 10)"
+            exit 1
+          fi
+          echo "PASS: version $VERSION satisfies constraint <1.10.0"
