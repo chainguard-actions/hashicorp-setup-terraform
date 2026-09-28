@@ -1,0 +1,44 @@
+name: Test terraform wrapper enabled
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: setup
+        uses: .
+        with:
+          terraform_version: '1.5.7'
+          terraform_wrapper: 'true'
+      - name: Run terraform version with wrapper
+        id: tf_version
+        run: terraform version
+      - name: Assert wrapper exposes stdout output
+        env:
+          STDOUT: ${{ steps.tf_version.outputs.stdout }}
+        run: |
+          echo "stdout output: $STDOUT"
+          if [ -z "$STDOUT" ]; then
+            echo "FAIL: stdout output is empty - wrapper may not be active"
+            exit 1
+          fi
+          if ! echo "$STDOUT" | grep -qi "terraform"; then
+            echo "FAIL: stdout does not contain 'terraform'"
+            exit 1
+          fi
+          echo "PASS: wrapper stdout output is set and contains terraform version info"
+      - name: Assert wrapper exposes exitcode output
+        env:
+          EXITCODE: ${{ steps.tf_version.outputs.exitcode }}
+        run: |
+          echo "exitcode output: $EXITCODE"
+          if [ -z "$EXITCODE" ]; then
+            echo "FAIL: exitcode output is empty - wrapper may not be active"
+            exit 1
+          fi
+          if [ "$EXITCODE" != "0" ]; then
+            echo "FAIL: expected exitcode 0 but got '$EXITCODE'"
+            exit 1
+          fi
+          echo "PASS: wrapper exitcode output is '0'"

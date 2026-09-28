@@ -1,0 +1,33 @@
+name: Test Terraform version constraint
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: setup
+        uses: .
+        with:
+          terraform_version: '<1.6.0'
+      - name: Assert terraform is installed
+        run: |
+          echo "Checking terraform binary..."
+          which terraform
+          terraform version
+          echo "PASS: terraform is installed"
+      - name: Assert installed version satisfies constraint
+        run: |
+          TF_VER=$(terraform version | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+          echo "Installed version: $TF_VER"
+          MAJOR=$(echo "$TF_VER" | cut -d. -f1)
+          MINOR=$(echo "$TF_VER" | cut -d. -f2)
+          # Version must be < 1.6.0, so either major < 1, or major == 1 and minor < 6
+          if [ "$MAJOR" -lt 1 ]; then
+            echo "PASS: version $TF_VER satisfies <1.6.0"
+          elif [ "$MAJOR" -eq 1 ] && [ "$MINOR" -lt 6 ]; then
+            echo "PASS: version $TF_VER satisfies <1.6.0"
+          else
+            echo "FAIL: version $TF_VER does NOT satisfy <1.6.0"
+            exit 1
+          fi

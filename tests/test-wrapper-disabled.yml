@@ -1,0 +1,38 @@
+name: Test terraform wrapper disabled
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: setup
+        uses: .
+        with:
+          terraform_version: '1.5.7'
+          terraform_wrapper: 'false'
+      - name: Assert terraform is still accessible without wrapper
+        run: |
+          echo "Checking terraform binary without wrapper..."
+          which terraform
+          terraform version
+          echo "PASS: terraform is accessible without wrapper"
+      - name: Run terraform version without wrapper
+        id: tf_no_wrapper
+        run: terraform version
+      - name: Assert no wrapper outputs are set
+        env:
+          STDOUT: ${{ steps.tf_no_wrapper.outputs.stdout }}
+          EXITCODE: ${{ steps.tf_no_wrapper.outputs.exitcode }}
+        run: |
+          echo "stdout output: '$STDOUT'"
+          echo "exitcode output: '$EXITCODE'"
+          if [ -n "$STDOUT" ]; then
+            echo "FAIL: stdout output should be empty when wrapper is disabled, got '$STDOUT'"
+            exit 1
+          fi
+          if [ -n "$EXITCODE" ]; then
+            echo "FAIL: exitcode output should be empty when wrapper is disabled, got '$EXITCODE'"
+            exit 1
+          fi
+          echo "PASS: no wrapper outputs set when terraform_wrapper=false"

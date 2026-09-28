@@ -1,0 +1,27 @@
+name: Test basic usage - latest Terraform
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: setup
+        uses: .
+        with:
+          terraform_version: latest
+      - name: Assert terraform is installed
+        run: |
+          echo "Checking terraform binary..."
+          which terraform
+          terraform version
+          echo "PASS: terraform is installed and accessible"
+      - name: Assert terraform version output is non-empty
+        run: |
+          TF_VER=$(terraform version | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+          echo "Installed version: $TF_VER"
+          if [ -z "$TF_VER" ]; then
+            echo "FAIL: could not determine terraform version"
+            exit 1
+          fi
+          echo "PASS: terraform version is '$TF_VER'"
