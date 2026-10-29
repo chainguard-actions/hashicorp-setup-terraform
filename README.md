@@ -6,12 +6,12 @@ Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at
 
 ## Versions
 
-| Version | Tag | Upstream commit |
-|---------|-----|-----------------|
-| v2.0.3 | [`v2.0.3`](https://github.com/chainguard-actions/hashicorp-setup-terraform/tree/v2.0.3) | [`633666f`](https://github.com/hashicorp/setup-terraform/commit/633666f66e0061ca3b725c73b2ec20cd13a8fdd1) |
-| v3.1.2 | [`v3.1.2`](https://github.com/chainguard-actions/hashicorp-setup-terraform/tree/v3.1.2) | [`b9cd54a`](https://github.com/hashicorp/setup-terraform/commit/b9cd54a3c349d3f38e8881555d616ced269862dd) |
-| v4.0.0 | [`v4.0.0`](https://github.com/chainguard-actions/hashicorp-setup-terraform/tree/v4.0.0) | [`5e8dbf3`](https://github.com/hashicorp/setup-terraform/commit/5e8dbf3c6d9deaf4193ca7a8fb23f2ac83bb6c85) |
-| v4.0.1 | [`v4.0.1`](https://github.com/chainguard-actions/hashicorp-setup-terraform/tree/v4.0.1) | [`dfe3c3f`](https://github.com/hashicorp/setup-terraform/commit/dfe3c3f87815947d99a8997f908cb6525fc44e9e) |
+| Version | Tag | Upstream commit | Hardening report |
+|---------|-----|-----------------|------------------|
+| v2.0.3 | [`v2.0.3`](https://github.com/chainguard-actions/hashicorp-setup-terraform/tree/v2.0.3) | [`633666f`](https://github.com/hashicorp/setup-terraform/commit/633666f66e0061ca3b725c73b2ec20cd13a8fdd1) | [`HARDENING.md`](https://github.com/chainguard-actions/hashicorp-setup-terraform/blob/v2.0.3/HARDENING.md) |
+| v3.1.2 | [`v3.1.2`](https://github.com/chainguard-actions/hashicorp-setup-terraform/tree/v3.1.2) | [`b9cd54a`](https://github.com/hashicorp/setup-terraform/commit/b9cd54a3c349d3f38e8881555d616ced269862dd) | [`HARDENING.md`](https://github.com/chainguard-actions/hashicorp-setup-terraform/blob/v3.1.2/HARDENING.md) |
+| v4.0.0 | [`v4.0.0`](https://github.com/chainguard-actions/hashicorp-setup-terraform/tree/v4.0.0) | [`5e8dbf3`](https://github.com/hashicorp/setup-terraform/commit/5e8dbf3c6d9deaf4193ca7a8fb23f2ac83bb6c85) | [`HARDENING.md`](https://github.com/chainguard-actions/hashicorp-setup-terraform/blob/v4.0.0/HARDENING.md) |
+| v4.0.1 | [`v4.0.1`](https://github.com/chainguard-actions/hashicorp-setup-terraform/tree/v4.0.1) | [`dfe3c3f`](https://github.com/hashicorp/setup-terraform/commit/dfe3c3f87815947d99a8997f908cb6525fc44e9e) | [`HARDENING.md`](https://github.com/chainguard-actions/hashicorp-setup-terraform/blob/v4.0.1/HARDENING.md) |
 
 ## Privacy
 
